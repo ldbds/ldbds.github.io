@@ -1,0 +1,184 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8" />
+<style type="text/css">
+html{
+color:#dddddd;}
+</style>>
+<title>TankMapEdit</title>
+</head>
+
+<body style="margin:0px;" >
+<canvas id="myTankCanvas" style = "position:absolute;top:0px;left:0px ">Canvas not supported</canvas>
+
+<form id="infoTable" style = "position:absolute;top:0px;left:0px">
+	width<input type="text" id='width' value = '80'/>
+	height<input type="text" id='height' value = '20'/>
+	<input type="button" value='Resize'
+	onclick='resize()'/></br>
+	<fieldset>
+	<legend>BLOCK TYPE</legend>
+	<input type="radio" name= "questionSelect" value = "brick" checked="checked"/> BRICK<br/>
+	<input type="radio"  name= "questionSelect" value = "iron"/> IRON<br/>
+	<input type="radio"  name= "questionSelect" value = "remove"/> Remove<br/>
+	</fieldset>
+	<input type="button" value='GetMapString'
+	onclick='outputString()'/></br>
+	<textarea id="output" rows="20" cols="300" style='font-size: 6px;'>asdfsdfsdf</textarea></br>
+</form>
+
+<img src = 'res\BLOCK.png' style = 'visibility:hidden'/>
+<img src = 'res\IRON.png' style = 'visibility:hidden'/>
+
+<script src = 'mapedit.js'> </script>
+<script src = 'map\map.js'></script>
+
+<script>
+
+// ---------- map
+var res_patterns = new Object();
+var canvas;
+var context;
+var map_W;
+var map_H;
+var map_blocks;
+const MAP_UNIT = 16;
+
+var selectedIndex = 'Idle';
+
+window.onload = function(){	
+	canvas=document.getElementById("myTankCanvas");
+	
+	// init map
+	context =canvas.getContext("2d");
+	res_patterns.block = loadPattern('res\\BLOCK.png');	
+	res_patterns.iron = loadPattern('res\\IRON.png');	
+	
+	map_W = map_level0.width;
+	document.getElementById("width").value = map_W.toString();
+	map_H = map_level0.height;
+	document.getElementById("height").value = map_H.toString();
+	map_blocks = map_level0.data;
+	
+	arrangeWindow();
+	repaintMap();
+	
+	//  regist UI
+	canvas.onmousedown = function(event){
+		var ans = document.getElementsByName("questionSelect");
+		 for(var i=0;i<ans.length;i++)
+		 if(ans[i].checked==true){
+			   selectedIndex = ans[i].value;
+		   }
+		   var x = Math.floor(event.offsetX/MAP_UNIT);
+		   var y = Math.floor(event.offsetY/MAP_UNIT);
+		  switch (selectedIndex){
+		  case "brick":
+			map_blocks[x+ map_W*y] = 1;
+			break;
+		  case "iron":
+			map_blocks[x+ map_W*y] = 2;
+			break;
+		  case "remove":
+			map_blocks[x+ map_W*y] = 0;
+			break;
+		  }
+		drawBlock(x,y);
+	}
+	canvas.onmousemove = function(event){
+		if (selectedIndex != 'Idle'){
+		   var x = Math.floor(event.offsetX/MAP_UNIT);
+		   var y = Math.floor(event.offsetY/MAP_UNIT);
+		  switch (selectedIndex){
+		  case "brick":
+			map_blocks[x+ map_W*y] = 1;
+			break;
+		  case "iron":
+			map_blocks[x+ map_W*y] = 2;
+			break;
+		  case "remove":
+			map_blocks[x+ map_W*y] = 0;
+			break;
+		  }
+		drawBlock(x,y);	
+		}
+	}
+	canvas.onmouseup= function(){
+		selectedIndex= "Idle";
+	}
+};	
+
+function outputString(){
+	document.getElementById("output").value = getMapString(map_W,map_H,map_blocks);
+}
+function arrangeWindow(){
+	// resize canvas
+	canvas.height = map_H*MAP_UNIT;
+	canvas.width = map_W*MAP_UNIT;
+	
+	document.getElementById("infoTable").style.top =  parseInt(canvas.height) + "px";
+}
+function resize(){
+	var new_map_W = parseInt(document.getElementById("width").value);
+	var new_map_H = parseInt(document.getElementById("height").value);
+	var new_map_blocks = new Array( new_map_W * new_map_H);
+	for (var x = 0; x < new_map_W;x++){
+		for (var y = 0; y < new_map_H;y++){
+			new_map_blocks[x + new_map_W*y] = 0;
+		}
+	}
+	for (var x = 0; x < Math.min(map_W,new_map_W);x++){
+		for (var y = 0; y < Math.min(map_H,new_map_H);y++){
+			new_map_blocks[x + new_map_W*y] = map_blocks[x + map_W*y];
+		}
+	}
+	map_H = new_map_H;
+	map_W = new_map_W;
+	map_blocks = new_map_blocks;
+	
+	arrangeWindow();
+	repaintMap();
+}
+
+function repaintMap(){
+	context.fillStyle = '#111111';
+	context.fillRect(0,0,canvas.width,canvas.height);
+	for( var xx =0;xx<map_W;xx++){
+		for (var yy = 0;yy<map_H;yy++){
+			drawBlock(xx,yy);
+		}
+	}
+}
+
+function drawBlock(x,y){
+	switch(map_blocks[x+y*map_W]){
+		case 1:
+		context.fillStyle = res_patterns.block;
+		context.fillRect(x*MAP_UNIT,y*MAP_UNIT,MAP_UNIT,MAP_UNIT);
+		break;
+		case 2:
+		context.fillStyle = res_patterns.iron;
+		context.fillRect(x*MAP_UNIT,y*MAP_UNIT,MAP_UNIT,MAP_UNIT);
+		break;
+		case 0:
+		context.fillStyle =  '#000000';
+		context.fillRect(x*MAP_UNIT,y*MAP_UNIT,MAP_UNIT,MAP_UNIT);
+		break;
+	}
+}
+function loadPattern(imageFileStr){
+	var canvas_bg = document.createElement("canvas");  
+	canvas_bg.width = MAP_UNIT*2;
+	canvas_bg.height = MAP_UNIT*2;
+	ctx = canvas_bg.getContext("2d");
+	var img =new Image();
+	img.src=imageFileStr;
+	ctx.drawImage(img,0,0,MAP_UNIT*2,MAP_UNIT*2);
+	return context.createPattern(canvas_bg,'repeat');
+}
+</script>
+
+ 
+</body>
+</html>

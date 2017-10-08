@@ -3,339 +3,62 @@
 <head>
 <meta charset="UTF-8" />
 <style type="text/css">
-html{
-color:#dddddd;}
+h1{
+	font-size: 50px;
+	margin-left:50px;
+    text-align:center;
+}
+p{
+	font-size: 30px;
+	margin-top:10px;
+	margin-left:100px;
+	margin-bottom:0px
+}
+img{
+	margin-top:10px;
+	margin-left:100px;
+	height:150px;
+	width:300px;
+}
+p.annotation{
+	font-size: 20px;
+	height:0px;
+	width:800px;
+	position:relative;
+	left:400px;
+	top:-150px;
+	margin-top:0px;
+	margin-left:100px
+}
 
 </style>
-<title>QuickSandPaint</title>
+<title>MainPage</title>
 </head>
 
 <body style="margin:0px;" >
-<img src = "./asset/bg3.png" alt="BG" id="background"/>
-<canvas id="myCanvas" width="1020" height="600" style = "position:absolute;top:0px;left:0px "
-onmousedown="onKeyPress(event)" onmousemove = "onMouseMove(event)" onmouseup="selectedIndex= &quot;Idle&quot;"></canvas>
+<h1>HTML5 little Games</h1>
+<hr/>
+<p><a href="SandPaint/SandPaint.html" title="SandPaint">SandPaint</a></p>
+<img src='SandPaint/sandPaint.png'/>
+<p class='annotation'> 
+Add Sand & Bubble on the screen and watch it evolve.<br/>
+Available both on PC and Phone.
+</p>
 
-<form id="infoTable" style = "position:absolute;top:0px;left:1024px">
-	<fieldset>
-	<legend>OPs</legend>
-	<input type="radio" name= "questionSelect" value = "Sand" checked="checked"/> Sand<br/>
-	<input type="radio"  name= "questionSelect" value = "Bubble"/> Bubble<br/>
-	<input type="radio"  name= "questionSelect" value = "Remove"/> Remove<br/>
-	</fieldset>
-	<fieldset>
-	<legend>info</legend>
-	active_sands : <label id="info1"></label><br/>
-	active_bubbs : <label id="info2"></label><br/>
-	update_sands : <label id="info3"></label><br/>
-	update_bubbs : <label id="info4"></label><br/>
-	update_nones : <label id="info5"></label><br/>
-	</fieldset>
-	<fieldset>
-	<legend>Load & Save</legend>
-	<input type="button" onClick="onClear()" value="CLEAR"/><br/>
-	<input type="button" onClick="onRandomBubb()" value = "RANDOM BUBBLE"/><br/>
-	<input type="button" onClick="onRandomSand()" value = "RANDOM SAND"/><br/>
-	<input type="button" onClick="onSave()" value = "SAVE"><br/>
-	<input type="button" onClick="onLoad()" value="LOAD">  <br/>
-	</fieldset>
-	<fieldset>
-	<legend>Console</legend>
-	<label id="result"></label>
-	</fieldset>
-</form>
+<hr/>
+<p><a href="KeyBoardPiano/KeyBoardPiano.html" title="KeyBoardPiano">KeyBoardPiano</a></p>
+<img src='KeyBoardPiano/NotedKeyBoard.png'/>
+<p class='annotation'> 
+KeyBoard Piano based on MIDI.js.<br/>
 
+</p>
+<hr/>
+<p><a href="Tank/Tank.html" title="Tank">Tank</a></p>
+<img src='Tank/Tank.png'/>
+<p class='annotation'> 
+Tank Game<br/>
 
-<script>
-var worker;
-var ctx;
-var canvas_w;
-var canvas_h;
-var keynum;
-const scale_x = 10;
-const scale_y = 5;
-
-var selectedIndex= 0 ;
-//  color
-const CLR_BG = "#000000";
-const CLR_SAND = "#ff5500";
-const CLR_BUBBLE = "#aaaaaa";
-
-
-function getWindowHeight(){
-	// 获取窗口高度
-	if (window.innerHeight)
-	winHeight = window.innerHeight;
-	else if ((document.body) && (document.body.clientHeight))
-	winHeight = document.body.clientHeight;
-	// 通过深入 Document 内部对 body 进行检测，获取窗口大小
-	if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth)
-	{
-	winHeight = document.documentElement.clientHeight;
-	}
-	return winHeight;
-}
-
-function getWindowWidth(){
-	// 获取窗口宽度
-	if (window.innerWidth)
-	winWidth = window.innerWidth;
-	else if ((document.body) && (document.body.clientWidth))
-	winWidth = document.body.clientWidth;
-	// 通过深入 Document 内部对 body 进行检测，获取窗口大小
-	if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth)
-	{
-	winWidth = document.documentElement.clientWidth;
-	}
-	return winWidth;
-}
-function onClear(){
-	stopWorker();
-	startWorker();
-}
-
-function onRandomBubb(){
-	for (var i = 0; i<100; i++){
-		var x = Math.floor(Math.random()*canvas_w/scale_x);
-		var y = Math.floor(Math.random()*canvas_h/scale_y);
-		worker.postMessage({
-			type: "addBubble",
-			value: [x,y]
-		});
-	}
-}
-function onRandomSand(){
-
-	for (var i = 0; i<100; i++){
-		var x = Math.floor(Math.random()*canvas_w/scale_x);
-		var y = Math.floor(Math.random()*canvas_h/scale_y);
-		worker.postMessage({
-			type: "addSand",
-			value: [x,y]
-		});
-	}
-}
-
-function onSave(){
-	// Check browser support
-	if (typeof(Storage) !== "undefined") {
-		// Store
-		worker.postMessage({
-			type: "getData"
-		});
-	} else {
-		document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage ...";
-	}
-}
-
-function onLoad(){
-	// Check browser support
-	if (typeof(Storage) !== "undefined") {
-		// Retrieve
-		var mapdata = JSON.parse(localStorage.getItem("MapData"));
-		if (mapdata.canvas_w != canvas_w/scale_x || 
-			mapdata.canvas_h != canvas_h/scale_y ){
-			document.getElementById("result").innerHTML = "Storage Data Err...";
-		}else{
-			stopWorker();
-			startWorker(mapdata);
-		}
-	} else {
-		document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage ...";
-	}
-
-}
-function onKeyPress(event){
-	 var ans = document.getElementsByName("questionSelect");
-	 for(var i=0;i<ans.length;i++)
-	 if(ans[i].checked==true){
-		   selectedIndex = ans[i].value;
-	   }
-	  switch (selectedIndex){
-	  case "Sand":
-		worker.postMessage({
-			type: "addSand",
-			value: [Math.floor(event.offsetX/scale_x), Math.floor(event.offsetY/scale_y)]
-		});
-		break;
-	  case "Bubble":
-	  worker.postMessage({
-			type: "addBubble",
-			value: [Math.floor(event.offsetX/scale_x), Math.floor(event.offsetY/scale_y)]
-		});
-		break;
-	  case "Remove":
-		worker.postMessage({
-			type: "remove",
-			value: [Math.floor(event.offsetX/scale_x), Math.floor(event.offsetY/scale_y)]
-		});
-		break;
-	  }
-}
-function onMouseMove(event){
-	  switch (selectedIndex){
-	  case "Sand":
-		worker.postMessage({
-			type: "addSand",
-			value: [Math.floor(event.offsetX/scale_x), Math.floor(event.offsetY/scale_y)]
-		});
-		break;
-	  case "Bubble":
-	  worker.postMessage({
-			type: "addBubble",
-			value: [Math.floor(event.offsetX/scale_x), Math.floor(event.offsetY/scale_y)]
-		});
-		break;
-	  case "Remove":
-		worker.postMessage({
-			type: "remove",
-			value: [Math.floor(event.offsetX/scale_x), Math.floor(event.offsetY/scale_y)]
-		});
-		break;
-	  }
-}
-
-
-function startWorker(mapdata){
-	if(typeof(Worker)!=="undefined"){
-		worker=new Worker("./worker.js");
-		if (!mapdata){
-			worker.postMessage({
-				type: "start",
-				value: [Math.floor(canvas_w/scale_x), Math.floor(canvas_h/scale_y)]
-			});
-		// init
-		clearCanvas();
-		}else{
-			worker.postMessage({
-				type: "start",
-				value: [Math.floor(canvas_w/scale_x), Math.floor(canvas_h/scale_y)],
-				mapdata:mapdata
-			});
-		
-		// init
-		repaintCanvas(mapdata);
-		}
-		
-		worker.onmessage = function (event) {
-			switch (event.data.type){
-			case "data":
-				// save file
-				localStorage.setItem("MapData", JSON.stringify(event.data.data));
-				break;
-			case "debug":
-				console.log(event.data.message);
-				break;
-			case "info":
-				document.getElementById("info1").innerHTML = event.data.data.data1;
-				document.getElementById("info2").innerHTML = event.data.data.data2;
-				document.getElementById("info3").innerHTML = event.data.data.data3;
-				document.getElementById("info4").innerHTML = event.data.data.data4;
-				document.getElementById("info5").innerHTML = event.data.data.data5;
-				break;
-			default:
-				ctx.globalAlpha = 0.5;
-				var update_sand = event.data.update_sand;
-				for( var i = 0; i < update_sand.length; i++){
-					var px = update_sand[i].x;
-					var py = update_sand[i].y;
-					// draw sand					
-					if (px != -1){
-						ctx.fillStyle=CLR_SAND;
-						ctx.fillRect(px*scale_x,py*scale_y,scale_x,scale_y);
-					}
-				}
-				
-				var update_bubb = event.data.update_bubb;
-				for( var i = 0; i < update_bubb.length; i++){
-					var px = update_bubb[i].x;
-					var py = update_bubb[i].y;
-					// draw bubb
-					if (px != -1){
-						ctx.fillStyle=CLR_BUBBLE;
-						ctx.fillRect(px*scale_x,py*scale_y,scale_x,scale_y);
-					}					
-				}
-				
-				var update_none = event.data.update_none;
-				for( var i = 0; i < update_none.length; i++){
-					var px = update_none[i].x;
-					var py = update_none[i].y;
-					// draw none
-					if (px != -1){
-						ctx.clearRect(px*scale_x,py*scale_y,scale_x,scale_y);
-						ctx.fillStyle=CLR_BG;
-						ctx.fillRect(px*scale_x,py*scale_y,scale_x,scale_y);	
-					}					
-				}
-				break;
-			}
-		};
-	}else{
-	  document.getElementById("result").innerHTML="Sorry, your browser does not support Web Workers...";
-	}
-}
-
-function repaintCanvas(mapdata){
-	ctx.clearRect(0,0,canvas_w,canvas_h);
-	ctx.globalAlpha = 0.5;
-	ctx.fillStyle=CLR_BG;
-	ctx.fillRect(0,0,canvas_w,canvas_h);
-	for (var px= 0; px< mapdata.canvas_w; px++){
-		for(var py = 0; py< mapdata.canvas_h; py++){
-			switch(mapdata.map[px+py*mapdata.canvas_w].type){
-			case 0:	
-			break;
-			case 1:
-			ctx.fillStyle=CLR_SAND;
-			ctx.fillRect(px*scale_x,py*scale_y,scale_x,scale_y);
-			break;
-			case 2:
-			ctx.fillStyle=CLR_BUBBLE;
-			ctx.fillRect(px*scale_x,py*scale_y,scale_x,scale_y);
-			break;
-			}
-		}
-	}
-}
-function clearCanvas(){
-		ctx.clearRect(0,0,canvas_w,canvas_h);
-		ctx.globalAlpha = 0.5;
-		ctx.fillStyle=CLR_BG;
-		ctx.fillRect(0,0,canvas_w,canvas_h);
-}
-function stopWorker(){
-	if(worker){
-		worker.terminate();
-	} 
-}
-
-window.onload = function(){
-
-	// resize
-	canvas_w = getWindowWidth();
-	canvas_h = getWindowHeight();
-	var bg=document.getElementById("background");
-	bg.height = canvas_h;
-	bg.width = canvas_w;
-	
-	canvas_w = Math.floor(canvas_w/scale_x) *scale_x;
-	canvas_h = Math.floor(canvas_h/scale_y) *scale_y;
-	var tb = document.getElementById("infoTable");
-	tb.style.left = parseInt(canvas_w-200) + "px";
-	var c=document.getElementById("myCanvas");
-	c.height = canvas_h;
-	c.width = canvas_w;
-	
-	ctx =c.getContext("2d");
-	//canvas_w = c.width;
-	//canvas_h = c.height;
-
-
-	startWorker();
-
-};
-</script>
- 
+</p>
 </body>
 </html>
 

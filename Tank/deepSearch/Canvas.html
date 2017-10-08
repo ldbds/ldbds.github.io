@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Canvas</title>
+</head>
+
+<body style="margin:0px;" >
+<canvas id="myCanvas" width= '1024px', height = '600px' style = "position:absolute;top:0px;left:0px ">Canvas not supported</canvas>
+
+<script src = 'treeHelper.js'></script>
+<script>
+var context;
+var tree  = new Node({depth:1,parent:null},expandFcn);
+
+window.onload = function(){
+	var c=document.getElementById("myCanvas");	
+	context = c.getContext("2d");
+
+	Inorder(tree, positionFcn);
+	process();
+};
+
+function process(){
+	if (bfs(tree, objectiveFcn) != null){
+		setTimeout("process()", 300);
+	}
+}
+
+	// Expand Tree
+function expandFcn(){
+	if (this.data.depth == 4) {
+		this.children = new Array(0);
+		return;
+	}
+	this.children = new Array(3);
+	for (var i =0;i<3;i++){
+		this.children[i] = new Node({
+			depth:this.data.depth+1,
+			parent:this
+		   },expandFcn);
+	}
+}	
+	// locate Tag
+var g_posX = 0;
+function positionFcn(data){
+	data.posX = g_posX;
+	g_posX = g_posX+15;
+}
+
+	//	draw Tag
+var g_cnt = 1;
+function objectiveFcn(data){
+	if (data.showed == undefined){
+		data.showed = true;
+		if (data.parent !=null){
+			context.beginPath();
+			context.moveTo(data.parent.data.posX+5,data.parent.data.depth*20+2);
+			context.lineTo(data.posX+5,data.depth*20-12);
+			context.stroke();
+		}
+		context.strokeText(
+		  g_cnt++,
+		  data.posX,
+		  data.depth*20);
+		return true;
+	}
+	return false;
+}
+
+</script>
+
+</body>
+</html>
