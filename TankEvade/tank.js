@@ -245,7 +245,7 @@ function process(){
 	for (var i=0;i<LIMIT_BULLET;i++){
 		var bullet = ent_bullets[i];
 		if (bullet.valid){
-			bullet.occupy(false);
+			//bullet.occupy(false);
 			bullet.fly();
 			
 			dir = bullet.direction;
@@ -304,9 +304,9 @@ function process(){
 			}
 			
 			if (bullet.valid){
-				bullet.occupy(true);
+				//bullet.occupy(true);
 			}else{
-				explodeAt(bullet,Math.floor(bullet.x),Math.floor(bullet.y-1));
+				//explodeAt(bullet,Math.floor(bullet.x),Math.floor(bullet.y-1));
 				eff_animations.push(new Animation(res_animations.fire,bullet.x,bullet.y,NORTH,32,32,2,2,4,null));
 				bullet.onhit();
 			}

@@ -23,69 +23,6 @@ function MapModel(bullets,tank){
 		}
 		
 		
-		
-		// update bullet  & check
-		for (var i=0;i<LIMIT_BULLET;i++){
-			if (mdl_bullets[i].valid){
-				mdl_bullets[i].fly();
-				
-				dir = mdl_bullets[i].direction;
-				xx = mdl_bullets[i].x;
-				yy = mdl_bullets[i].y;
-				
-				// check Tank Collision
-				if(mdl_bullets[i].valid && mdl_tank.valid){
-					var xxx = mdl_tank.x;
-					var yyy = mdl_tank.y;
-					switch(dir){
-						case NORTH:
-						case SOUTH:
-							if ((xx >=  Math.floor(xxx - 2))&&(xx <=  Math.ceil(xxx + 1))){
-								if ((yy >=  Math.floor(yyy - 2))&&(yy <=  Math.ceil(yyy + 1))){
-									mdl_bullets[i].valid = false;
-									mdl_tank.valid = false;
-								}
-							}
-							break;
-						case WEST:	
-						case EAST:
-							if ((xx >=  Math.floor(xxx - 2))&&(xx <=  Math.ceil(xxx + 1))){
-								if ((yy >=  Math.floor(yyy - 2))&&(yy <=  Math.ceil(yyy + 1))){
-									mdl_bullets[i].valid = false;
-									mdl_tank.valid = false;
-								}
-							}
-							break;		
-					}
-				}
-				//  check Bullet Collision
-				for (var j=0;(j<LIMIT_BULLET) && mdl_bullets[i].valid;j++){
-					if (!(j == i) && mdl_bullets[j].valid){
-						switch(dir){
-							case NORTH:
-							case SOUTH:
-								if(mdl_bullets[j].y == yy){
-									if(mdl_bullets[j].x == xx || mdl_bullets[j].x == xx) {
-										mdl_bullets[i].valid = false;
-										mdl_bullets[j].valid = false;
-									}	
-								}
-								break;
-							case WEST:	
-							case EAST:
-								if(mdl_bullets[j].x == xx){
-									if(mdl_bullets[j].y==yy || mdl_bullets[j].y==yy) {
-										mdl_bullets[i].valid = false;
-										mdl_bullets[j].valid = false;
-									}	
-								}
-								break;		
-						}
-					}
-				}
-			}
-		}
-		
 		// update tank
 		var ismoving = false;
 		if (command.north){
@@ -129,6 +66,69 @@ function MapModel(bullets,tank){
 					mdl_bullets[i].direction = dir;	
 					mdl_bullets[i].valid = true;			
 					break;
+				}
+			}
+		}
+		
+		
+		// update bullet  & check
+		for (var i=0;i<LIMIT_BULLET;i++){
+			if (mdl_bullets[i].valid){
+				mdl_bullets[i].fly();
+				
+				dir = mdl_bullets[i].direction;
+				xx = mdl_bullets[i].x;
+				yy = mdl_bullets[i].y;
+				
+				//  check Bullet Collision
+				for (var j=0;(j<LIMIT_BULLET) && mdl_bullets[i].valid;j++){
+					if (!(j == i) && mdl_bullets[j].valid){
+						switch(dir){
+							case NORTH:
+							case SOUTH:
+								if(mdl_bullets[j].y == yy){
+									if(mdl_bullets[j].x == xx || mdl_bullets[j].x == xx) {
+										mdl_bullets[i].valid = false;
+										mdl_bullets[j].valid = false;
+									}	
+								}
+								break;
+							case WEST:	
+							case EAST:
+								if(mdl_bullets[j].x == xx){
+									if(mdl_bullets[j].y==yy || mdl_bullets[j].y==yy) {
+										mdl_bullets[i].valid = false;
+										mdl_bullets[j].valid = false;
+									}	
+								}
+								break;		
+						}
+					}
+				}
+				// check Tank Collision
+				if(mdl_bullets[i].valid && mdl_tank.valid){
+					var xxx = mdl_tank.x;
+					var yyy = mdl_tank.y;
+					switch(dir){
+						case NORTH:
+						case SOUTH:
+							if ((xx >=  Math.floor(xxx - 2))&&(xx <=  Math.ceil(xxx + 1))){
+								if ((yy >=  Math.floor(yyy - 2))&&(yy <=  Math.ceil(yyy + 1))){
+									mdl_bullets[i].valid = false;
+									mdl_tank.valid = false;
+								}
+							}
+							break;
+						case WEST:	
+						case EAST:
+							if ((xx >=  Math.floor(xxx - 2))&&(xx <=  Math.ceil(xxx + 1))){
+								if ((yy >=  Math.floor(yyy - 2))&&(yy <=  Math.ceil(yyy + 1))){
+									mdl_bullets[i].valid = false;
+									mdl_tank.valid = false;
+								}
+							}
+							break;		
+					}
 				}
 			}
 		}
