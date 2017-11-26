@@ -1,6 +1,6 @@
 
 // search for 16 ticks
-const SEARCH_TICK= 9;
+const SEARCH_TICK= 12;
 
 const STEP_STAY = 0;
 const STEP_N = 1;
