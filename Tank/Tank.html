@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8" />
+<style type="text/css">
+img{
+style: visibility:hidden;}
+</style>
+<title>TankGame</title>
+</head>
+
+<body style="margin:0px;" >
+<canvas id="myTankCanvas" style = "position:absolute;top:0px;left:0px">Canvas not supported</canvas>
+<canvas id="treeCanvas" width= '1024px', height = '600px' 
+  style = "position:absolute;top:0px;left:600px">Canvas not supported</canvas>
+
+<img src = 'res\BLOCK.png' style = 'visibility:hidden'/>
+<img src = 'res\IRON.png' style = 'visibility:hidden'/>
+<script src = 'AI\driverAggressive.js'> </script>
+<!--<script src = 'AI\driverAvoid.js'> </script>-->
+<script src = 'AI\driverAstar.js'> </script>
+<script src = 'AI\treeHelper.js'> </script>
+
+<script src = 'AI\driver.js'> </script>
+<script src = 'tank.js'> </script>
+<script src = 'map\map.js'></script>
+<script>
+window.onload = function(){
+	// resize canvas
+	var c=document.getElementById("myTankCanvas");
+	c.height = 400;
+	c.width = 600;
+	//c.height = getWindowHeight();
+	//c.width = getWindowWidth();
+	
+	tank_start(c,map_level0);
+};
+	
+</script>
+
+ <script><!------------------- Window  Functions------------------>
+ function getWindowHeight(){
+	// 获取窗口高度
+	if (window.innerHeight)
+	winHeight = window.innerHeight;
+	else if ((document.body) && (document.body.clientHeight))
+	winHeight = document.body.clientHeight;
+	// 通过深入 Document 内部对 body 进行检测，获取窗口大小
+	if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth)
+	{
+	winHeight = document.documentElement.clientHeight;
+	}
+	return winHeight;
+}
+function getWindowWidth(){
+	// 获取窗口宽度
+	if (window.innerWidth)
+	winWidth = window.innerWidth;
+	else if ((document.body) && (document.body.clientWidth))
+	winWidth = document.body.clientWidth;
+	// 通过深入 Document 内部对 body 进行检测，获取窗口大小
+	if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth)
+	{
+	winWidth = document.documentElement.clientWidth;
+	}
+	return winWidth;
+}
+ </script>
+</body>
+</html>
