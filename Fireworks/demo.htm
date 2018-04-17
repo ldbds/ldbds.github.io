@@ -2,7 +2,7 @@
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<title>生日快乐撒</title>
+<title>点屏幕放焰火</title>
 
 <style>
 html, body{
@@ -73,7 +73,7 @@ ctx.canvas.height = window.innerHeight
 
 var sparks = []
 var fireworks = []
-var i = 20; while(i--) {
+var i = 10; while(i--) {
    fireworks.push(
       new Firework(Math.random()*window.innerWidth, window.innerHeight*Math.random())
    )
@@ -130,6 +130,7 @@ function Spark(x, y, color) {
 
 function Firework(x, y) {
    this.xmove = new Walker({radius: 10, speed: 0.5})
+   this.upspeed = Math.random()*1 +1;
    this.x = x || Math.random() * ctx.canvas.width
    this.y = y || ctx.canvas.height
    this.height = Math.random()*ctx.canvas.height/2
@@ -138,7 +139,7 @@ function Firework(x, y) {
    
    this.move = function() {
       this.x += this.xmove.step()
-      if(this.y > this.height) this.y -= 1; 
+      if(this.y > this.height) this.y -= this.upspeed; 
       else this.burst()
       
    }
@@ -158,7 +159,7 @@ function drawCircle(x, y, radius, color) {
 }
 
 function randomColor(){
-   return ['#6ae5ab','#88e3b2','#36b89b','#7bd7ec','#66cbe1'][Math.floor(Math.random() * 5)];
+   return ['#6ae5ab','#88e3b2','#36b89b','#7bd7ec','#66cbe1','#D4341E','#BF65A0','#ffff00'][Math.floor(Math.random() * 8)];
 }
 
 function Walker(options){
