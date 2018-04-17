@@ -404,7 +404,7 @@ function objectiveFcn(data){
 		return false;
 	}
 	score = data.score +
-		Math.abs(data.tank.x - origin_pos.x) /2+Math.abs(data.tank.y - origin_pos.y) /2
+		Math.abs(data.tank.x - origin_pos.x) << 1 +Math.abs(data.tank.y - origin_pos.y) << 1
 	if (score > max_score){
 		max_score = score;
 		max_leaf_data = data;
@@ -506,7 +506,13 @@ function DriverAstar(){
 			if (result == null){
 				
 				deleteTree(tree);
-				return this.getRandomMove(myTank);	
+				return {
+							shot:false,
+							north:false,
+							south:true,
+							east:false,
+							west:false
+						};	
 			}else{
 				this.cmdBuffer = getResultCommands(result);
 				//this.drawTrace(result);
