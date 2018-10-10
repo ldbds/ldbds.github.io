@@ -2,4 +2,4 @@
 
 # this is the home page of ldbds
 
-![image](./asset/bg3.png)
+![image](./assets/bg3.png)
