@@ -1,0 +1,119 @@
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+</head>
+<script>
+ 
+  function ChessZone(screenDiv){
+  		var self=this;
+  		var divObj = screenDiv;
+
+  		//self
+  		var objList = new Object();  		
+  		
+  		self.setParentclass=function(parentclass){
+  			self.parentClass=parentclass;
+  			self.util=parentclass.getThis("util");
+  			self.dataClassObj=parentclass.getThis("dataClassObj");
+  			self.NSLog = parentclass.getThis("NSLog");
+  		}
+  		
+  		self.getThis=function(varible){	
+  			return eval("self."+varible);
+  		}
+  		
+    self.init=function(){
+    	self.SitZoneAry = new Array();
+    	self.ChessZoneDry = new Array();
+    	
+    	divObj.style.display = "";
+    	 for (var i = 1; i <= 7; i++) {
+        for (var j = 1; j <= 7; j++) {
+            var temp = new Object();
+            var x = 0;
+           	var y = i*35;
+						if(j > i){
+              break;
+            }
+            x = 45+(j-1)*40+20*(7-i);
+            temp.frame = (x-20)+","+(y-20)+","+30+","+30;
+            temp.SitStr = i+"-"+j;
+            
+            var str = i+"-"+j+"_"+x+","+y+"";
+            self.ChessZoneDry[i+"-"+j] = str;
+      			divObj.innerHTML += self.getSitZoneHtml(i,j,x,y);     
+      			divObj.innerHTML += self.getSitZonePotHtml(i,j,x,y);
+      			self.SitZoneAry[self.SitZoneAry.length] = temp;
+        }
+    	}
+    	
+ 
+    	
+    	var sum = 0;
+    	for (var j = 6; j>= 1; j--) {
+        sum ++;
+        var count = 0;
+        for (var i = j; i >= 1; i--) {
+            count ++;
+            var temp = new Object();
+            var x = 45+(count-1)*40+20*(7-j);
+            var y = 7*35+35*sum;
+            
+            temp.frame = (x-20)+","+(y-20)+","+30+","+30;
+            temp.SitStr= (sum+7)+"-"+count;
+            
+            var str = sum+7+"-"+count+"_"+x+","+y;
+            self.ChessZoneDry[(sum+7)+"-"+count] = str;
+            divObj.innerHTML += self.getSitZoneHtml((sum+7),count,x,y);
+            divObj.innerHTML += self.getSitZonePotHtml((sum+7),count,x,y);
+      			self.SitZoneAry[self.SitZoneAry.length] = temp;
+        }
+    	}
+    	
+    	for(var i = 0 ; i < self.SitZoneAry.length ; i++){
+    		var temp = self.SitZoneAry[i];
+    		var strAry = temp.SitStr.split("-");
+    		var pot = self.util.getSpan(divObj,"SPAN","Pot"+strAry[0]+strAry[1]);
+    		temp.pot = pot;
+				temp.ChessType = 0;
+    		//self.NSLog(temp.pot);
+    	}
+    	
+    }
+    
+    self.getSitZoneHtml = function(i,j,x,y){
+    	var ret = "";
+    	ret += "<span id='Sit"+i+""+j+"'";
+    	ret += "style=\"position:absolute; width:30px; height:30px; left:"+(x-20)+"px; top:"+(y-20)+"px;\">";
+    	ret += "<img id=\"imgZone\" src=\"./img/R.png\" width=\"30\" height=\"30\" />";
+    	ret += "</span>";
+    	return ret;
+    }
+    self.getSitZonePotHtml = function(i,j,x,y){
+    	var ret = "";
+    	ret += "<span id='Pot"+i+""+j+"'";
+    	ret += "style=\"position:absolute;display:none; width:15px; height:15px; left:"+((x-20)+(30/4))+"px; top:"+((y-20)+(30/4))+"px;\">";
+    	ret += "<img id=\"imgZone\" src=\"./img/014.png\" width=\"15\" height=\"15\" />";
+    	ret += "</span>";
+    	return ret;
+    }
+    
+    self.getChessZone = function(){
+    	return  self.ChessZoneDry;
+		}
+		self.getSitZoneAry= function(){
+    	return self.SitZoneAry;
+		}
+    
+		self.closes=function(){
+  		self.ChessZoneDry = null;
+  		self.SitZoneAry = null;
+  	}
+  	
+  	
+  }
+  	
+</script>
+<body>
+</body>
+</html>

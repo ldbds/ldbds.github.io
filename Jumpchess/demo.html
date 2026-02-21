@@ -1,0 +1,138 @@
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+</head>
+<script>
+	/*簡稱:R 是包HTML && JS程式的，記得做JS的進入func給new R的class 呼叫*/
+  //function goldInfoView(){  	
+  		var self=this;
+  		var parentClass;
+  		var util; 		
+  		var dataClassObj;
+  		var langStr;
+  		var divObj;  		
+            
+  		var artHtml = "JumpGame.html";		//美工html名稱
+  		var artName = "JumpGame";				//同美工html名稱，但不加語系及副檔名  		
+  		var divName = "JumpGame_box";		//要拿的divObj的name id
+  		
+  		//self
+  		var iframe;										//美工html	(HTML)  
+  		var iframeID;									//指定更改 div 的 id 	  				
+  		var myArt;										//從html取出要用的div	
+  		var myClass;									//程式邏輯寫的js
+  		
+  		var debug = true;
+  			
+			//artHtml onload 後要做的function
+			self.artHtmlonload = function(event){				
+				//擋空白頁的onload
+				var tarObj;
+				if(document.all) tarObj = event.srcElement;
+				else tarObj = event.target;
+				
+				var target = tarObj;//event.target;// || event.srcElement;
+				
+				if (eval(target.name).location=="about:blank") return;		
+				//建立美工畫面
+				self.myArt = self.iframe.document.getElementById(divName).cloneNode(true);	//從html取出要用的div		.children
+				if(self.iframeID != ""){
+					self.myArt.setAttribute("id",self.iframeID);							//指定更改div的id					
+				}		
+				self.divObj.appendChild( self.myArt );			//把div新增至畫面上		
+															
+				//建立程式邏輯
+				self.myClass = new JumpGameClass.JumpGameClass( self.myArt );			//建立js，丟入div給js控制 //自行更改class name 
+				self.myClass.setParentclass(self);
+				self.myClass.init();
+	
+				//載入完成
+				self.isReady = true;
+				self.ready();
+			}
+  		  		
+  		self.setParentclass=function(parentclass){  			
+  		}			
+			self.getThis=function(varible){
+				return eval(varible);
+			}
+			//初始化
+			self.init=function(nameTag){
+				
+				self.divObj = document.getElementById("showScreen");
+								
+				self.util = new utilClass.utilClass();	
+				self.dataClassObj = new dataClass.DataClass();
+				self.dataClassObj.setParentclass(self);
+				self.dataClassObj.init();
+				
+				artHtml = artName +"_tw.html";
+				self.isReady = false;
+				self.iframeID = nameTag || "";			
+				self.iframe=self.getIframe(artHtml);
+			}	
+			//動態載入iframe html
+			self.getIframe=function(frameSrc){
+				if (document.all){
+					//window.attachEvent(‘onload’,函数名)//IE中
+					document.getElementById(artName).attachEvent('onload',self.artHtmlonload);
+				}
+				else{
+					document.getElementById(artName).onload=self.artHtmlonload;
+					//window.addEventListener(‘load’,函数名,false);//firefox
+				}
+				//document.getElementById(artName).onload=self.artHtmlonload;
+				var ifrm = eval(artName);
+				ifrm.location.href=frameSrc;
+				return ifrm;
+			}
+			//丟上層顯示的Div下來，等美工html載完才可以新增至畫面上@param obj 上層的畫面Div
+			self.addView=function(obj){
+				self.divObj = obj;
+			}
+			//html載入完成後method  please override 
+			self.ready=function(){
+			}
+			//檢查htm是否l載入完成 
+			self.checkReady=function(){
+				if( !self.isReady ){
+					alert("html not ready!");
+					return false;
+				}
+				return true;
+			}
+				
+			self.goToUrl = function(_url){
+				reloadPHP_upd.location.href = _url;
+			}
+			self.goOutUrl = function(_url){
+				clearInterval(self.codeTimer);
+				self.location.href = _url;
+			}
+			self.NSLog=function(str){
+					if(debug){
+						console.log(str);	
+					}
+			}
+			
+			//myClass method入口============================================================================
+			self.closes=function(){
+  			if( !self.checkReady() ){return;}		
+				self.myClass.closes();
+  		}
+  		  		
+  	//}
+  	
+</script>
+<body onload="init();">
+	
+	<div id="showScreen" style="position:absolute; left:0px; top:0px;width:100%;height:100%;" ></div>
+	
+	<div id=myClass style="display:none;">
+	<iframe name="utilClass" id="utilClass" src="utilClass.html" width=0 height=0></iframe>
+	<iframe name="dataClass" id="dataClass" src="DataClass.html" width=0 height=0 ></iframe>
+	<iframe name="JumpGame" id="JumpGame" src="about:blank" width=0 height=0 ></iframe>
+	<iframe name="JumpGameClass" id="JumpGameClass" src="JumpGameClass.html" width=0 height=0 ></iframe>
+	</div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+</head>
+<script>
+ 
+  function JumpGameClass(screenDiv){
+  		var self=this;
+  		var divObj = screenDiv;
+
+  		//self
+  		var objList = new Object();  		
+  		
+  		self.setParentclass=function(parentclass){
+  			self.parentClass=parentclass;
+  			self.util= parentclass.getThis("util");
+  			self.dataClassObj=parentclass.getThis("dataClassObj");
+  			self.NSLog = parentclass.getThis("NSLog");
+  		}
+  		
+  		self.getThis=function(varible){	
+  			return eval("self."+varible);
+  		}
+  		
+    self.init=function(){
+    	objList['playBg'] = self.util.getSpan(divObj,"audio","playBg");
+    	objList['playBg'].src="./mp3/backinroom_tw.mp3";
+    	objList['playBg'].autoplay = true;
+    	objList['playBg'].loop = true;
+    	
+    	objList['playSound'] = self.util.getSpan(divObj,"audio","playSound");
+    	
+    	divObj.style.display = "";
+    	objList['ChessZone'] = self.util.getSpan(divObj,"DIV","ChessZone"); //格子的畫面
+    	objList['ChessView'] = self.util.getSpan(divObj,"DIV","ChessView"); //棋子的畫面
+    	objList['ResultView'] = self.util.getSpan(divObj,"DIV","ResultView"); //結果的畫面
+    	objList['show'] = self.util.getSpan(objList['ResultView'],"DIV","show");
+    	
+    	var AIVSMAN = self.util.getSpan(divObj,"DIV","AIVSMAN");
+    	objList['AIIcon'] = self.util.getSpan(AIVSMAN,"SPAN","AIIcon");
+    	objList['MANIcon'] = self.util.getSpan(AIVSMAN,"SPAN","MANIcon");
+    	
+    	objList['AIIcon'].style.display = "none";
+    	objList['MANIcon'].style.display = "none";
+    	objList['ResultView'].style.display = "none";
+    	
+    	objList['ChessZone'].innerHTML = "";
+    	objList['ChessView'].innerHTML = "";
+    	
+    	self.createChessZone();
+    	self.createChessGame();
+    }
+    self.createChessGame = function(){
+    	self.removeChessGame();
+    	self.ChessGameV =  new ChessGame.ChessGame(objList['ChessView']);
+    	self.ChessGameV.setParentclass(self);
+    	self.ChessGameV.init();
+    	self.ChessGameV.CreateChess(self.ChessZoneV.getChessZone(),self.ChessZoneV.getSitZoneAry());
+    }
+    self.removeChessGame = function(){
+    	if(self.ChessGameV != null){
+    		self.ChessGameV.closes();
+    		self.ChessGameV = null;
+    	}	
+    }
+    
+    
+    self.createChessZone = function(){
+    	self.removeChessZone();
+    	
+    	self.ChessZoneV =  new ChessZone.ChessZone(objList['ChessZone']);
+    	self.ChessZoneV.setParentclass(self);
+    	self.ChessZoneV.init();
+    }
+    self.removeChessZone = function(){
+    	if(self.ChessZoneV != null){
+    		self.ChessZoneV.closes();
+    		self.ChessZoneV = null;
+    	}	
+    }
+    
+    self.showWho = function(msg){
+    	if(msg == "AI"){
+    		objList['AIIcon'].style.display = "";
+    		objList['MANIcon'].style.display = "none";
+    	}else{
+    		objList['AIIcon'].style.display = "none";
+    		objList['MANIcon'].style.display = "";
+    	}
+    }
+    
+    
+    //---
+    self.BaseEventAction =function(msg){
+    	self.NSLog("JumpClass >>>> "+msg);
+   		var msgAry = msg.split("|");
+   		var type = msgAry[0];
+   		if(type == "GameOver"){
+   			self.ShowWhoWin(msgAry[1]);
+   			return;
+   		}
+   		if(type == "PlaySound"){
+   			self.playSound(msgAry[1]);
+   			return;
+   		}
+   	}
+   	
+		self.ShowWhoWin = function(str){
+			objList['ResultView'].style.display = "";
+	   	var img = self.util.getSpan(objList['show'],"IMG","img");
+	   	img.src = "./img/"+str+"_win.png";
+	   	
+	   	self.timerID = setTimeout(self.init, 3 * 1000);
+		}
+   	
+   	
+   	self.playSound  =function(msg){
+   		objList['playSound'].src= "./mp3/"+msg+".mp3"; 
+   		objList['playSound'].autoplay = true;
+   	}
+   
+   
+		
+		self.closes=function(){
+  	
+  	}
+  	
+  	
+  }
+  	
+</script>
+<body>
+	<iframe name="ChessZone" id="ChessZone" src="ChessZone.html" width=0 height=0 ></iframe>
+	<iframe name="ChessGame" id="ChessGame" src="ChessGame.html" width=0 height=0 ></iframe>
+	<bgsound loop="1" id="bgs"/> 
+</body>
+</html>

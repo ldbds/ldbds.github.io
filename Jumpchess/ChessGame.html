@@ -1,0 +1,357 @@
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+</head>
+<script>
+ 
+  function ChessGame(screenDiv){
+  		var self=this;
+  		var divObj = screenDiv;
+
+  		//self
+  		var objList = new Object();  		
+  		var gameOver = false;
+    	var nowTurn = 0;
+  		
+  		
+  		self.setParentclass=function(parentclass){
+  			self.parentClass=parentclass;
+  			self.util=parentclass.getThis("util");
+  			self.dataClassObj=parentclass.getThis("dataClassObj");
+  			self.NSLog = parentclass.getThis("NSLog");
+  		}
+  		
+  		self.getThis=function(varible){	
+  			return eval("self."+varible);
+  		}
+  		
+    self.init=function(){
+    	divObj.style.display = "";
+    	divObj.onmouseup = self.touchEnd;
+    	self.ChessDry = new Array();
+    	self.whiteAry = new Array();
+   	  self.blackAry = new Array();
+   		
+   		self.touchObj = null;
+   		
+   		self.findroad = new FindRoad.FindRoad();
+   		self.findroad.setParentclass(self);
+    	self.findroad.init();
+    	
+    	self.aiclass = new AIClass.AIClass();
+    	self.aiclass.setParentclass(self);
+    	self.aiclass.init();	
+    }
+    self.CreateChess = function(zoneDry,ary){
+    		self.ChessZoneDry = zoneDry;
+    		self.SitZoneAry = ary;
+    		var sum = 1;
+    		for (var i = 1; i <=4; i++) {
+        	for (var j = 1; j <=i ; j++) {
+            var str = i+"-"+j;
+            var tmp = zoneDry[str];
+            var tmpAry = tmp.split("_");
+            var ttmpAry = tmpAry[1].split(",");
+            var potX = parseInt(ttmpAry[0],10);
+            var potY = parseInt(ttmpAry[1],10);
+            var chess = new Object();
+            chess.frame = (potX-20)+","+(potY-20)+","+30+","+30;
+            chess.ChessType = 1;
+            chess.ChessSit = str;
+            chess.isTouch = false;
+            var key = "W_"+sum;
+            divObj.innerHTML += self.getChessInnerHtml(key,potX,potY,"white");
+            self.ChessDry[key] = chess;
+            sum ++;
+            self.whiteAry[self.whiteAry.length] = str;
+        	}
+    		}
+    		sum = 1;
+    		for (var i = 10; i <=13; i++) {
+		        var count = 14-i;
+		        for (var j = 1; j <= count; j++) {
+		            var str = i+"-"+j;
+		            var tmp = zoneDry[str];
+		            var tmpAry = tmp.split("_");
+		            var ttmpAry = tmpAry[1].split(",");
+            		var potX = parseInt(ttmpAry[0],10);
+            		var potY = parseInt(ttmpAry[1],10);
+		            var chess = new Object();
+            		chess.frame = (potX-20)+","+(potY-20)+","+30+","+30;
+            		chess.ChessType = 2;
+            		chess.ChessSit = str;
+            		chess.isTouch = false;
+		            var key = "B_"+sum;
+		            self.ChessDry[key] = chess;
+            		sum ++;
+            		divObj.innerHTML += self.getChessInnerHtml(key,potX,potY,"black");
+            		self.blackAry[self.blackAry.length] = str;
+		        }
+    		}
+    		
+    		var chessKeys = Object.keys(self.ChessDry);
+		    for (var i = chessKeys.length - 1; i >= 0; i--) {
+		        var chess = self.ChessDry[chessKeys[i]];
+		        self.setChessOnSit(chess.ChessSit,self.SitZoneAry,chess.ChessType);
+		    }
+		    
+		    for(var i = 0 ; i < chessKeys.length ; i++){
+    			var chess = self.ChessDry[chessKeys[i]];
+    			var pot = self.util.getSpan(divObj,"SPAN","Chess"+chessKeys[i]);
+    			chess.div = pot;
+    		}
+				
+		    nowTurn = 0;    
+    		self.parentClass.showWho("MAN");
+    }
+    
+    self.touchEnd = function(e){
+    	var x = e.clientX ;//+ document.body.scrollLeft;
+    	var y = e.clientY ;//+ document.body.scrollTop;
+    	self.NSLog(x+","+y);
+    	if(nowTurn == 1){ //AI use
+    		return;
+    	}
+    	var isTouchChess = false;
+    	var chessKeys = Object.keys(self.ChessDry);
+    	for(var i = 0 ; i < chessKeys.length ; i++){
+    		var chess = self.ChessDry[chessKeys[i]];
+    		if (chess.ChessType == 1) {
+            continue;
+        }
+        var isTouch = self.ChkTouchChess(chess,x,y);
+        self.NSLog(isTouch+"~~"+chess.frame);
+        if(isTouch){
+        		if(self.touchObj != null){
+        			self.touchObj.div.style.opacity="1";
+        		}
+        		self.setAllSitStop();
+            self.touchObj = chess;
+            isTouchChess = true;
+            var istouch = self.touchObj.isTouch;
+            if(istouch){
+                self.touchObj.div.style.opacity="0.5";
+                self.findroad.setSitZoneAry(self.SitZoneAry);
+            }else{
+                self.touchObj.div.style.opacity="1";
+                self.touchObj = null;
+                self.setAllSitStop();
+            }
+        	break;
+        }
+    	}
+    	
+    	if(self.touchObj != null && isTouchChess){ //第一次點擊到旗子
+        var roads = self.findroad.setChessSitStr(self.touchObj.ChessSit);
+       	roads = null;
+    	}else if(self.touchObj != null && !isTouchChess){ //選位置
+    		var roads = self.findroad.setChessSitStr(self.touchObj.ChessSit);
+    		var touchSit = false;
+        for (var j = 0; j< self.SitZoneAry.length; j++) {
+            var sit = self.SitZoneAry[j];
+            var needBreak = false;
+            for (var  i = 0; i < roads.length; i++) {
+                var canPut = roads[i];
+                var Isput = self.ChkTouchChess(sit,x,y);
+                if(sit.SitStr == canPut && Isput){
+                    needBreak = true;
+                    sit.ChessType = self.touchObj.ChessType;
+                    var tmp = self.ChessZoneDry[canPut];
+                    var tmpAry = tmp.split("_");
+                    var potAry = tmpAry[1].split(",");
+                    var potX = parseInt(potAry[0],10);
+                    var potY = parseInt(potAry[1],10);
+                    self.touchObj.ChessSit = canPut;
+                    self.touchObj.frame = (potX-20)+","+(potY-20)+","+30+","+30;
+                    self.touchObj.div.style.left = (potX-20)+'px';
+                    self.touchObj.div.style.top = (potY-35)+'px';
+                    self.parentClass.BaseEventAction("PlaySound|click_tw");
+                    nowTurn = 1;
+                    self.parentClass.showWho("AI");
+                    self.timeID = setTimeout(self.AIChoseChess,2*1000);
+                    break;
+                }
+            }
+            if(needBreak){
+                touchSit = true;
+                break;
+            }
+        }
+        if(touchSit){
+            self.setAllSitStop();
+            self.touchObj.div.style.opacity="1";
+            self.touchObj = null;
+            for (var i = 0 ; i < self.SitZoneAry.length; i++) {
+                var sit = self.SitZoneAry[i];
+                sit.ChessType = 0;
+            }
+            
+            var chessKeys = Object.keys(self.ChessDry);
+            for (var i = chessKeys.length -1; i >= 0; i--) {
+                var chess = self.ChessDry[chessKeys[i]];
+                self.setChessOnSit(chess.ChessSit,self.SitZoneAry,chess.ChessType);
+            }
+        }
+        self.ChkGameOver();
+        roads = null;
+    	}
+    	
+    }
+    
+    self.BaseEventAction = function(msg){
+    		var msgAry = msg.split("|");
+    		var type = msgAry[0];
+    		if(type == "AIDO"){
+    			self.setAllSitStop();
+        	var chess = self.ChessDry[msgAry[2]];
+        	chess.div.style.opacity = "1";
+        	var tmp = self.ChessZoneDry[msgAry[1]];
+        	var tmpAry = tmp.split("_");
+        	var potAry = tmpAry[1].split(",");
+          var potX = parseInt(potAry[0],10);
+          var potY = parseInt(potAry[1],10);
+        	chess.ChessSit = msgAry[1];
+        	chess.frame= (potX-20)+","+(potY-20)+","+30+","+30;
+        	chess.div.style.left = (potX-20)+'px';
+        	chess.div.style.top = (potY-35)+'px';
+        	
+        	for (var i = 0 ; i < self.SitZoneAry.length ; i++) {
+            var sit = self.SitZoneAry[i];
+            sit.ChessType = 0;
+        	}
+        
+        	var chessKeys = Object.keys(self.ChessDry);
+	        for (var i = chessKeys.length-1; i >= 0; i--) {
+	            var chess = self.ChessDry[chessKeys[i]];
+	            self.setChessOnSit(chess.ChessSit,self.SitZoneAry,chess.ChessType);
+	        }
+	        nowTurn = 0;
+          self.parentClass.showWho("MAN");
+	        
+	        self.parentClass.BaseEventAction("PlaySound|click_tw");
+	        self.ChkGameOver();
+	    		return;
+	    	}
+    }
+    
+    
+    
+   	self.AIChoseChess= function(){
+    	if (gameOver) {
+        return;
+    	}
+	    self.aiclass.setChessDry(self.ChessDry);
+	    self.aiclass.setChessZoneDry(self.ChessZoneDry);
+	    self.aiclass.setSitZoneAry(self.SitZoneAry);
+	    self.aiclass.ChoseChess();
+		}
+    
+    self.setAllSitStop = function(){
+	    for (var i = 0; i < self.SitZoneAry.length; i++) {
+	        var sit = self.SitZoneAry[i];
+	        sit.pot.style.display = "none";
+	        sit.pot.style.opacity = "1";
+	    }
+		}
+
+
+    self.setChessOnSit= function(key,ary,type){
+		    for (var i = 0 ; i < ary.length; i++) {
+		        var sit = ary[i];
+		        if(key == sit.SitStr){
+		        	sit.ChessType = type;
+		          return;
+		        }
+		    }
+		}
+    
+   self.ChkGameOver = function(){
+		    var sumBlack = 0;
+		    var sumWhite = 0;
+		    var chessKeys = Object.keys(self.ChessDry);
+		    for (var i = chessKeys.length-1 ; i >= 0; i--) {
+		        var chess = self.ChessDry[chessKeys[i]];
+		        if (chess.ChessType == 1) {
+		            var white = self.isInSitAry(self.blackAry,chess.ChessSit);
+		            if (white) {
+		                sumWhite ++;
+		                continue;
+		            }
+		        }else{
+		            var black = self.isInSitAry(self.whiteAry,chess.ChessSit);
+		            if (black) {
+		                sumBlack ++;
+		                continue;
+		            }
+		        }
+		    }
+		    self.NSLog(sumWhite+" ><><><><><><><>< "+sumBlack);
+		    if (sumBlack == 10) {
+		        gameOver = true;
+		        self.parentClass.BaseEventAction("GameOver|b");
+		        
+		        return 2;
+		    }
+		    if (sumWhite == 10) {
+		        gameOver = true;
+		        self.parentClass.BaseEventAction("GameOver|w");
+		        return 1;
+		    }
+		    return 0;  
+		}
+    
+    self.isInSitAry = function(ary,str){
+		    var ret = false;
+		    for (var i = 0; i < ary.length; i++) {
+		        var tmp = ary[i];
+		        if (str == tmp) {
+		            ret = true;
+		            break;
+		        }
+		    }
+		    return ret;
+		}
+		
+		self.getChessInnerHtml = function(str,x,y,type){
+			var ret = "";
+    	ret += "<span id='Chess"+str+"'";
+    	ret += "style=\"position:absolute; width:30px; height:42px; left:"+(x-20)+"px; top:"+(y-35)+"px;\">";
+    	ret += "<img id=\"img\" src=\"./img/"+type+".png\" width=\"30\" height=\"42\" />";
+    	ret += "</span>";
+    	return ret;
+		}
+		
+		self.ChkTouchChess = function(chess,x,y){
+		    var ret = false;
+		    var frameAry = chess.frame.split(",");
+		    
+		    var wX = frameAry[0]*1 + frameAry[2]*1;
+		    var hY = frameAry[1]*1 + frameAry[3]*1;
+		    self.NSLog(x+" "+frameAry[0]+" "+y+" "+frameAry[1]+" "+wX +" "+hY);
+		    if(x > frameAry[0] && y > frameAry[1] && x < wX && y < hY){
+		        ret = true;
+		    }
+		    if(chess.isTouch){
+		        chess.isTouch = false;
+		    }else{
+		        chess.isTouch = true;
+		    }
+		    return ret;
+		}
+		
+		
+		
+    
+		self.closes=function(){
+  		
+  	}
+  	
+  	
+  }
+  	
+</script>
+<body>
+	<iframe name="FindRoad" id="FindRoad" src="FindRoad.html" width=0 height=0 ></iframe>
+	<iframe name="AIClass" id="AIClass" src="AIClass.html" width=0 height=0 ></iframe>
+</body>
+</html>

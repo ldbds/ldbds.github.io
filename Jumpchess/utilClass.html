@@ -1,0 +1,165 @@
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+</head>
+<script>
+function utilClass(){
+	
+	var self=this;
+	
+	self.getSpan = function(divObj,Tag,spanid){
+     return self.getObj(divObj,spanid);
+  }
+
+  self.getObj = function(divObj,tagID){
+                var obj=null;
+                try{
+                        obj=divObj.children[tagID];
+                }catch(e){
+                        obj=null;
+                }
+                return obj;
+        }
+
+        self.setDivHidden = function(div, isHidden){
+                if(div == undefined){
+                        alert("div undefined");
+                        return;
+                }
+                if(isHidden){
+                        div.style.display = "none";
+                }else{
+                        div.style.display = "";
+                }
+        }
+
+	self.getMyTimeZone = function(){
+       		var d = new Date();
+        	var str = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+        	str += " "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
+
+        	var start = d.toString().indexOf("(") + 1;
+        	var end = d.toString().indexOf(")");
+
+        	var myZone = d.toString().substring(start,end);
+
+        	var data = new Array();
+        	data[0] = str;
+        	data[1] = myZone;
+
+        	return data;
+	}
+
+	self.validateEmail = function(email) {
+        	regularExpression = /^[^\s]+@[^\s]+\.[^\s]{2,3}$/;
+        	if (regularExpression.test(email)) {
+                	return true;
+        	}else{
+                	return false;
+        	}
+	}
+
+	//時間差
+         
+	//取二個時間相減後的秒數
+ 
+	self.getDateTimeSub = function(sub1,sub2){
+                var tmpdata1 = sub1.split(" ");
+                var tmpA1 = tmpdata1[0].split("-");
+                var tmpA2 = tmpdata1[1].split(":");
+                var tmpdata2 = sub2.split(" ");
+                var tmpB1 = tmpdata2[0].split("-");
+                var tmpB2 = tmpdata2[1].split(":");
+                var Date_A = new Date(tmpA1[0],tmpA1[1]-1,tmpA1[2],tmpA2[0],tmpA2[1],tmpA2[2]);
+                var Date_B = new Date(tmpB1[0],tmpB1[1]-1,tmpB1[2],tmpB2[0],tmpB2[1],tmpB2[2]);
+                var Date_C = new Date(Date_B - Date_A);
+                
+                //天，時，分，秒，總秒數
+     
+	       	var tmpAry = new Array(0,0,0,0,0);
+                
+                tmpAry[0] = Math.floor(Date_C.getTime() / 3600000);
+                tmpAry[1] = Date_C.getUTCHours();
+                tmpAry[2] = Date_C.getUTCMinutes();
+                tmpAry[3] = Date_C.getUTCSeconds();
+                
+                var sec = 0;
+                sec += Math.floor(Date_C.getTime() / 3600000) * 3600;
+                sec += Date_C.getUTCMinutes() * 60;
+                sec += Date_C.getUTCSeconds();
+                
+                tmpAry[4] = sec;
+                
+                return tmpAry;
+        }
+
+	//取得加秒數
+	self.getAddDateTime = function(nowdate,add){
+                var tmpdata = nowdate.split(" ");
+                var tmpA1 = tmpdata[0].split("-");
+                var tmpA2 = tmpdata[1].split(":");
+                var Date_A = new Date(tmpA1[0],tmpA1[1]-1,tmpA1[2],tmpA2[0],tmpA2[1],tmpA2[2]);
+
+		Date_A.setTime(Date_A.getTime()+(add*1000));    //加秒數
+		
+		var str = Date_A.getFullYear()+"-"+(Date_A.getMonth()+1)+"-"+Date_A.getDate();
+                str += " "+Date_A.getHours()+":"+Date_A.getMinutes()+":"+Date_A.getSeconds();
+                
+                return str;
+       }
+
+	//取丟進來的秒數轉成幾分幾秒的格式
+	self.getMinute = function(sec){
+                var ret = "00:00";
+                if(sec>0){
+                    var tmp1 = Math.floor(sec / 60);
+                    var tmp2 = sec % 60;
+                    if(tmp1 < 10){
+                        tmp1 = "0"+tmp1;
+                    }
+                    if(tmp2 < 10){
+                        tmp2 = "0"+tmp2;
+                    }
+                    ret = tmp1 + ":" + tmp2;
+                }
+                return ret;
+       }
+
+	self.removeMC = function(clearObj){
+                
+                var childL = clearObj.children.length;
+                if( childL > 0 ){
+                    for (var i=childL-1 ; i >= 0 ; i--){
+                        var obj = clearObj.children[i];
+                        if ( obj.tagName=="DIV" || obj.tagName=="SPAN" ){
+                            self.removeMC( obj );
+                        }
+                        
+                    }
+                }
+                
+                //alert(clearObj.id);
+                clearObj.innerHTML = "";
+                clearObj.parentElement.removeChild(clearObj);
+            }
+            
+            self.removeAllSub = function(clearObj){
+                var childL = clearObj.children.length;
+                if( childL > 0 ){
+                    for (var i=childL-1 ; i >= 0 ; i--){
+                        var obj = clearObj.children[i];
+                        if ( obj.tagName=="DIV" || obj.tagName=="SPAN" ){
+                            self.removeMC( obj );
+                        }
+                        
+                    }
+                }
+             }
+}
+	
+</script>
+<body>
+
+</body>
+</html>
+

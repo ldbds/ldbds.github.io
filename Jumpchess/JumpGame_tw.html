@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>網頁暗棋遊戲</title>
+</head>
+
+<body>
+<!--中間白底遮罩-->
+<div id="JumpGame_box" width="320" height="480">
+	<div id="Big_bg" style="position:absolute; width:320px; height:480px; left:0px; top:0px;">
+	<img id="bg_img" src="./img/bg2.png" width="320" height="480" />
+	</div>
+	
+	<div id="AIVSMAN" style="position:absolute; width:320px; height:480px; left:0px; top:0px;">
+	<span id="AIIcon" style="position:absolute; width:64px; height:64px; left:256px; top:0px;">
+	 	<img id="icon_img" src="./img/AI.png" width="64" height="64" />
+	</span>
+	<span id="MANIcon" style="position:absolute; width:64px; height:64px; left:0px; top:410px;">
+	 	<img id="icon_img" src="./img/man.png" width="64" height="64" />
+	</span>
+	</div>
+	
+	
+	<div id="ChessZone" style="position:absolute; width:320px; height:480px; left:0px; top:0px;">
+	</div>
+	
+	<div id="ChessView" style="position:absolute; width:320px; height:480px; left:0px; top:0px;">
+	</div>
+	
+	<div id="ResultView" style="position:absolute; width:320px; height:480px; left:0px; top:0px;display:none;">
+		<span id="mask" style="position:absolute; width:320px; height:480px; left:0px; top:0px;">
+	 	<img id="img" src="./img/mask.png" width="320" height="480" />
+		</span>
+		<span id="show" style="position:absolute; width:273px; height:65px; left:25px; top:190px;">
+			<img id="img" src="./img/b_win.png" width="273" height="65" />
+		</span>
+	</div>
+	
+	
+	<audio id="playSound" src="skill1.wav">
+	</audio>
+	
+	<audio id="playBg" src="backinroom_tw.mp3">
+	</audio>
+	
+</div>
+</body>
+</html>

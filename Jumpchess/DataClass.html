@@ -1,0 +1,45 @@
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+            
+<script>
+function DataClass(){
+	var self=this;
+	var parentClass;
+
+	var valuesAry = new Array();
+
+	self.setParentclass=function(parentclass){
+		parentClass=parentclass;
+	}
+
+	self.init=function(){
+		
+		self.setValsWithKey("canOpenGtype","CH|HP|MS");
+	}
+
+	self.getThis=function(varible){
+        	return eval(varible);
+       	}
+
+	self.setValsWithKey = function(key,vals){
+        	valuesAry[key] = vals;
+        }
+
+	self.getValsByKey = function(key){
+        	var ret = key;
+               	if(valuesAry[key] != undefined || valuesAry[key] != null){
+                	ret = valuesAry[key];
+                }
+               	return ret;
+       	}
+
+}
+
+</script>
+</head>
+<body>
+
+</body>
+</html>
+

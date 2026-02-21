@@ -1,0 +1,160 @@
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+</head>
+<script>
+ 
+  function AIClass(screenDiv){
+  		var self=this;
+  		var divObj = screenDiv;
+
+  		//self
+  		var objList = new Object();  		
+  		
+  		self.setParentclass=function(parentclass){
+  			self.parentClass=parentclass;
+  			self.util=parentclass.getThis("util");
+  			self.dataClassObj=parentclass.getThis("dataClassObj");
+  			self.NSLog = parentclass.getThis("NSLog");
+  		}
+  		
+  		self.getThis=function(varible){	
+  			return eval("self."+varible);
+  		}
+  		
+    self.init=function(){
+    	self.findroad = new FindRoad.FindRoad();
+    	self.findroad.setParentclass(self);
+    	self.findroad.init();
+    	self.findroad.setAIUse(true);
+    }
+    
+    self.setChessDry = function(dry){
+    	self.ChessDry = dry;
+		}
+		self.setChessZoneDry = function(dry){
+    	self.ChessZoneDry = dry;
+		}
+		self.setSitZoneAry = function(ary){
+    	self.SitZoneAry = ary;
+		}
+    
+		self.ChoseChess = function(){
+    self.findroad.setSitZoneAry(self.SitZoneAry);
+    var keyAry = Object.keys(self.ChessDry);
+    var which = new Array();
+    var whichOne = new Array();
+    for (var i = 0; i< keyAry.length; i++) {
+        var chess = self.ChessDry[keyAry[i]];
+        if (chess.ChessType == 2) {
+            continue;
+        }
+        var roads = self.findroad.setChessSitStr(chess.ChessSit);
+        if (!self.allZero(roads)) {
+        		roads = null;
+            continue;
+        }
+        which[which.length] = keyAry[i];
+        whichOne[whichOne.length] = roads;
+    }
+    var ary = null;
+    var chose = null;
+    var useIdx = 0;
+    var wantI = 0;
+    var wantJ = 0;
+    var moveMost = 0;
+    for (var i = 0; i < whichOne.length; i++) {
+        ary = whichOne[i];
+        chose = which[i];
+        var chess = self.ChessDry[chose];
+        var choseAry = chess.ChessSit.split("-");
+        var choseI =  parseInt(choseAry[0],10);
+       	var choseJ =  parseInt(choseAry[1],10);
+        for (var j = 0; j < ary.length; j++) {
+            var str =  ary[j];
+            var strAry = str.split("-");
+            var Idx = parseInt(strAry[0],10);
+            var Jdx = parseInt(strAry[1],10);
+            if (Idx - choseI > moveMost) {
+                moveMost = Idx - choseI;
+                wantI = Idx;
+                wantJ = Jdx;
+                useIdx = i;
+                //self.NSLog(choseAry[0]); //I
+            }
+            if (wantI == 0 && wantJ == 0) {
+                if(Math.abs(Jdx - choseJ) > 0){
+                    wantI = Idx;
+                    wantJ = Jdx;
+                    useIdx = i;
+                    //self.NSLog(choseAry[0]); // J 
+                }
+            }
+        }
+    }
+    
+    ary  = whichOne[useIdx];
+    chose = which[useIdx];
+    //self.NSLog(wantI+","+wantJ+","+chose+","+moveMost);
+    if (wantJ == 0 && wantI == 0) {
+        var tmp = ary[ary.length - 1];
+        var tmpAry = tmp.split("-");
+        wantI = parseInt(tmpAry[0],10);
+        wantJ = parseInt(tmpAry[1],10);
+    }
+    
+    for (var i = 0; i < ary.length; i++) {
+        for (var j = 0; j < self.SitZoneAry.length; j++) {
+            var sit = self.SitZoneAry[j];
+            if (ary[i] == sit.SitStr) {
+                //let sit shine
+                sit.pot.style.display = "";
+                sit.pot.style.opacity = "0.5";
+            }
+        }
+    }
+    var aitouchobj = self.ChessDry[chose];
+    aitouchobj.div.style.opacity = "0.5";
+    
+    self.NSLog("AI >>>> "+aitouchobj+","+chose);
+    
+    var send = wantI+"-"+wantJ+"|"+chose;
+    self.timerID = setTimeout(self.AIChoseChess, 2 * 1000,send);
+	}
+    
+    
+    
+    
+    
+   	self.AIChoseChess= function(sender){
+	    var str = sender;
+	    var send ="AIDO|"+str;
+	    self.parentClass.BaseEventAction(send);
+		}
+    
+    self.allZero = function(ary){
+    	var ret = false;
+    	for (var i = 0; i < ary.length; i++) {
+        var str = ary[i];
+        if (str != "") {
+            ret = true;
+            break;
+        }
+    	}
+    
+    	return ret;
+		}
+    
+    
+		self.closes=function(){
+  		self.findroad = null;
+  	}
+  	
+  	
+  }
+  	
+</script>
+<body>
+	<iframe name="FindRoad" id="FindRoad" src="FindRoad.html" width=0 height=0 ></iframe>
+</body>
+</html>
